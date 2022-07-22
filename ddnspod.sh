@@ -2,12 +2,13 @@
 #
 
 globals() {
+    this="$(cd "$(dirname "$0")" && pwd -P)"
     arToken=""
     updateIPv6=false
 }; globals
 
 # Import ardnspod functions
-. ./ardnspod
+. "$this/ardnspod"
 
 # Combine your token ID and token together as follows
 
