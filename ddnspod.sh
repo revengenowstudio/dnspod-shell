@@ -1,17 +1,40 @@
 #!/bin/sh
 #
 
+globals() {
+    arToken=""
+    updateIPv6=false
+}; globals
+
 # Import ardnspod functions
-. /your_real_path/ardnspod
+. ./ardnspod
 
 # Combine your token ID and token together as follows
-arToken="12345,7676f344eaeaea9074c123451234512d"
 
 # Place each domain you want to check as follows
 # you can have multiple arDdnsCheck blocks
 
-# IPv4:
-arDdnsCheck "test.org" "subdomain"
+readConfig() {
+    local line=""
+    while read line;do
+        # echo $line
+        arToken=$arToken,$line
+    done < config
+    arToken=${arToken#*,}
+}
 
-# IPv6:
-arDdnsCheck "test.org" "subdomain6" 6
+main() {
+    readConfig
+    # echo "$arToken"
+    # IPv4:
+    echo "Updating IPv4 record"
+    arDdnsCheck "revengenow.top" "update"
+
+    # IPv6:
+    if [ $updateIPv6 = true ];then
+        echo "Updating IPv6 record"
+        arDdnsCheck "revengenow.top" "subdomain6" 6
+    fi
+}; main
+
+
