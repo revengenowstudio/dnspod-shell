@@ -185,6 +185,25 @@ arDdnsCheck() {
         fi
     fi
 
+    # check difference
+    local fullDomain="$2.$1"
+    local nsQuery=`nslookup -query=A $fullDomain`
+    echo "$nsQuery" | grep "Address:" > addrCache
+    local line
+    local existingIp=""
+    while read line;do
+        # echo L: $line
+        existingIp=${line#Address:}
+        existingIp=`echo $existingIp | tr -s '\n'`
+    done < addrCache
+    rm addrCache
+    echo "Existing record IP: $existingIp"
+
+    if [ "$existingIp" = "$hostIp" ];then
+        echo "IP Address is same, skip"
+        return
+    fi
+
     echo "Fetching RecordId"
     recordId=$(arDdnsLookup "$1" "$2" "$recordType")
 
