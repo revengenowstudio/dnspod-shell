@@ -4,7 +4,7 @@
 globals() {
     this="$(cd "$(dirname "$0")" && pwd -P)"
     arToken=""
-    updateIPv6=false
+    updateIPv6=true
 }; globals
 
 # Import ardnspod functions

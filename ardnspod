@@ -58,7 +58,7 @@ arWanIp6() {
     local hostIp
 
     if type curl >/dev/null 2>&1; then
-        hostIp=$(curl -s https://v6.ip.sb)
+        hostIp=$(curl -s https://6.ipw.cn)
     else
         hostIp=$(wget -q -O- https://v6.ip.sb)
     fi
@@ -164,6 +164,7 @@ arDdnsCheck() {
     echo "Fetching Host Ip"
 
     if [ "$3" = "6" ]; then
+	    echo "IPv6 mode spotted"
         recordType=AAAA
         hostIp=$(arWanIp6)
         if [ $? -ne 0 ]; then
@@ -187,13 +188,25 @@ arDdnsCheck() {
 
     # check difference
     local fullDomain="$2.$1"
-    local nsQuery=`nslookup -query=A $fullDomain`
+    local nsQuery=`nslookup -query=$recordType $fullDomain`
     echo "$nsQuery" | grep "Address:" > addrCache
+	echo "$nsQuery" | grep "has $recordType address " >> addrCache
     local line
     local existingIp=""
     while read line;do
         # echo L: $line
+		if [[ -z $line ]];then
+		    continue
+		fi
         existingIp=${line#Address:}
+        possibleIpv6=`echo $line | awk -F 'address ' '{print $2}' | grep -E '^[0-9a-fA-F:]+$'`
+		if [[ ! -z $possibleIpv6 ]];then
+			echo "p:$possibleIpv6"
+			existingIp=$possibleIpv6
+		fi
+		if [[ -z $existingIp ]];then
+			continue
+		fi
         existingIp=`echo $existingIp | tr -s '\n'`
     done < addrCache
     rm addrCache
