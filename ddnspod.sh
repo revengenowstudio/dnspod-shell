@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 
 globals() {
@@ -20,7 +20,7 @@ readConfig() {
     while read line;do
         # echo $line
         arToken=$arToken,$line
-    done < config
+    done < "$this/config"
     arToken=${arToken#*,}
 }
 

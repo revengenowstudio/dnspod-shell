@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 
 #############################################################
@@ -56,6 +56,24 @@ arWanIp4() {
 arWanIp6() {
 
     local hostIp
+    local IFACES=$(ifconfig | grep -o '^[^ ]*')
+
+    # Loop through each interface
+    for IFACE in $IFACES; do
+        # Use ifconfig and grep to get the IPv6 GUA
+        local IPV6=$(ip addr show $IFACE | awk '/inet6 / && /scope global/ {print $2}' | grep -oE "2[0-9a-fA-F]{3}:(([0-9a-fA-F]{1,4}[:]{1,2}){1,6}[0-9a-fA-F]{1,4})")
+
+        # If IPv6 GUA exists, print it
+        if [ ! -z "$IPV6" ]; then
+            hostIp="$IPV6"
+            # echo "Interface: $IFACE"
+            # echo "IPv6 GUA: $IPV6"
+        fi
+    done
+    if [ ! -z "$hostIp" ];then
+        echo $hostIp
+        return 0
+    fi
 
     if type curl >/dev/null 2>&1; then
         hostIp=$(curl -s https://6.ipw.cn)
@@ -74,7 +92,6 @@ arWanIp6() {
     fi
 
     echo $hostIp
-
 }
 
 # Dnspod Bridge
